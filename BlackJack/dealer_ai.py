@@ -23,7 +23,12 @@ class DealerAI:
                 return -1  # Dealer pierde
         
         if profundidad == 0:
-            return dealer_puntaje / 21  # Evaluación heurística
+            if dealer_puntaje > 21:
+                return -1  # Dealer pierde
+            elif dealer_puntaje >= 17:
+                return (dealer_puntaje - jugador_puntaje) / 21  # Premia puntajes más altos
+            else:
+                return (dealer_puntaje / 21) - 0.5  # Incentiva tomar más cartas
         
         if es_turno_dealer:
             mejor_valor = -float('inf')
@@ -63,9 +68,9 @@ class DealerAI:
         else:
             tomar_carta_valor = -float('inf')
         
-        plantarse_valor = self.minimax(dealer_mano, jugador_puntaje, 3, False, mazo_simulado)
+        plantarse_valor = self.minimax(dealer_mano, jugador_puntaje, 3, True, mazo_simulado)
         
-        if tomar_carta_valor > plantarse_valor:
+        if tomar_carta_valor > plantarse_valor or self.calcular_puntaje(dealer_mano) < jugador_puntaje:
             self.indice_carta += 1  # 📌 Avanza en el mazo solo si toma la carta
             return "tomar carta"
         else:
