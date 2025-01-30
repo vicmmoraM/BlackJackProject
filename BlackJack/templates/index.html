@@ -4,89 +4,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blackjack</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #2E8B57;
-            color: white;
-        }
-        h1 {
-            font-size: 36px;
-        }
-        button {
-            background-color: #FFD700;
-            border: none;
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            margin: 10px;
-            border-radius: 5px;
-        }
-        button:hover {
-            background-color: #FFA500;
-        }
-        .game-info {
-            background-color: rgba(0, 0, 0, 0.5);
-            padding: 20px;
-            margin: 20px auto;
-            width: 50%;
-            border-radius: 10px;
-        }
-        #resultado {
-            font-size: 24px;
-            font-weight: bold;
-            margin-top: 20px;
-            color: yellow;
-        }
-    </style>
-    <script>
-        function iniciarJuego() {
-            fetch('/iniciar', { method: 'POST' })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("dealerCartas").innerText = "Dealer: " + data.dealer.cartas.join(', ');
-                document.getElementById("dealerPuntos").innerText = "Puntos: " + data.dealer.puntos;
-                document.getElementById("resultado").innerText = "";  // Resetear resultado
-            });
-        }
-
-        function capturarCartas() {
-            fetch('/capturar_cartas', { method: 'POST' })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("jugadorCartas").innerText = "Jugador: " + data.jugador.cartas.join(', ');
-                document.getElementById("jugadorPuntos").innerText = "Puntos: " + data.jugador.puntos;
-            });
-        }
-
-        function plantarse() {
-            fetch('/plantarse', { method: 'POST' })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("dealerCartas").innerText = "Dealer: " + data.dealer.cartas.join(', ');
-                document.getElementById("dealerPuntos").innerText = "Puntos: " + data.dealer.puntos;
-                document.getElementById("resultado").innerText = data.resultado;  // 🔥 Mostrar resultado
-            })
-            .catch(error => console.error('Error:', error));
-        }
-    </script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script defer src="{{ url_for('static', filename='script.js') }}"></script>
 </head>
 <body>
     <h1>Blackjack</h1>
-    <button onclick="iniciarJuego()">Iniciar Juego</button>
-    <button onclick="capturarCartas()">Capturar Cartas</button>
-    <button onclick="plantarse()">Plantarse</button>
     
-    <div class="game-info">
-        <h2>Estado del Juego</h2>
-        <p id="jugadorCartas">Jugador: </p>
-        <p id="jugadorPuntos">Puntos: </p>
-        <p id="dealerCartas">Dealer: </p>
-        <p id="dealerPuntos">Puntos: </p>
-        
-        <!-- 🔥 Aquí se muestra el resultado -->
-        <h2 id="resultado"></h2>
+    <!-- 📌 SECCIÓN DE APUESTAS -->
+    <div class="betting-container">
+        <h2>Seleccione su apuesta</h2>
+        <div class="chips">
+            <button class="chip" data-value="5">5</button>
+            <button class="chip" data-value="10">10</button>
+            <button class="chip" data-value="25">25</button>
+            <button class="chip" data-value="50">50</button>
+            <button class="chip" data-value="100">100</button>
+        </div>
+        <p>Apuesta actual: <span id="betAmount">0</span></p>
+        <button id="btnConfirmBet">Confirmar Apuesta</button>
+    </div>
+    
+    <!-- 📌 SECCIÓN DEL JUEGO -->
+    <div class="game-container" style="display: none;">
+        <h2>Apuesta Confirmada: <span id="finalBetAmount">0</span></h2>
+        <button id="btnIniciar">Iniciar Juego</button>
+        <button id="btnCapturar">Capturar Cartas</button>
+
+        <!-- 📌 NUEVOS BOTONES DE ACCIONES -->
+        <div class="game-actions">
+            <button id="btnPlantar">Plantar</button>
+            <button id="btnDoblar">Doblar Apuesta</button>
+        </div>
+
+        <!-- 📌 ESTADO DEL JUEGO -->
+        <div class="game-info">
+            <h2>Estado del Juego</h2>
+            <p id="jugadorCartas">Jugador: </p>
+            <p id="jugadorPuntos">Puntos: </p>
+            <p id="dealerCartas">Dealer: </p>
+            <p id="dealerPuntos">Puntos: </p>
+            <h2 id="resultado"></h2>
+        </div>
     </div>
 </body>
 </html>
