@@ -33,24 +33,30 @@ while True:
         results = detectar_cartas(frame, conf=cfg.umbral_confianza)
 
         if results and len(results) > 0 and hasattr(results[0], "boxes"):
-            cartas_detectadas = []
+            cartas_detectadas = {}
+
             for result in results:
                 for box in result.boxes:
+                    x1, y1, x2, y2 = map(int, box.xyxy[0])  # Obtener coordenadas del cuadro
                     class_id = int(box.cls[0])
                     confianza = box.conf[0].item()
                     carta_nombre = result.names[class_id]  # Nombre de la carta
 
-                    # 📌 Agregar carta a la lista de detección
-                    cartas_detectadas.append(carta_nombre)
+                    # 📌 Solo tomar la detección con el `y` más pequeño
+                    if carta_nombre not in cartas_detectadas or y1 < cartas_detectadas[carta_nombre][1]:
+                        cartas_detectadas[carta_nombre] = (confianza, y1)
 
-            print(f"✅ Cartas detectadas: {', '.join(cartas_detectadas)}")
+            # 📌 Guardar solo las cartas con detección en la esquina superior
+            cartas_finales = list(cartas_detectadas.keys())
+
+            print(f"✅ Cartas detectadas: {', '.join(cartas_finales)}")
         else:
             print("❌ No se detectaron cartas en la imagen.")
 
         # 📌 Mostrar la imagen analizada con detecciones
         detected_frame = results[0].plot() if results and len(results) > 0 else frame
         cv2.imshow("Imagen Capturada - Análisis", detected_frame)
-        cv2.waitKey(0)  # Esperar hasta que el usuario cierre la imagen
+        cv2.waitKey(0)  # Esperar hasta que el usuario cierre la imagenc
 
     elif key == ord('q'):  # ❌ Salir del programa
         print("👋 Saliendo...")
