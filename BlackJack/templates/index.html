@@ -4,23 +4,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blackjack - Visión Artificial</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
-<body>
+<body style="background-color: green; color: white; text-align: center;">
     <h1>Blackjack - Visión Artificial</h1>
 
-    <button id="btnIniciar">Iniciar Juego</button>
-    <button id="btnDealer" disabled>Turno del Dealer</button>
+    <button id="iniciar-btn">Iniciar Juego</button>
+    <button id="capturar-cartas-btn">Capturar Cartas del Jugador</button>
+    <button id="plantarse-btn">Plantarse</button> <!-- 🔥 Nuevo botón -->
 
     <h2>Jugador</h2>
-    <div id="jugador-cartas" class="cartas"></div>
-    <p id="jugador-puntos"></p>
+    <div id="jugador-cartas"></div>
+    <div id="jugador-puntos"></div>
 
     <h2>Dealer</h2>
-    <div id="dealer-cartas" class="cartas"></div>
-    <p id="dealer-puntos"></p>
+    <div id="dealer-cartas"></div>
+    <div id="dealer-puntos"></div>
 
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>
+        $(document).ready(function() {
+            $("#iniciar-btn").click(function() {
+                $.post("/iniciar", function(data) {
+                    $("#dealer-cartas").text(data.dealer.cartas.join(", "));
+                    $("#dealer-puntos").text("Puntos: " + data.dealer.puntos);
+                });
+            });
+
+            $("#capturar-cartas-btn").click(function() {
+                $.post("/capturar_cartas", function(data) {
+                    $("#jugador-cartas").text(data.jugador.cartas.join(", "));
+                    $("#jugador-puntos").text("Puntos: " + data.jugador.puntos);
+                });
+            });
+
+            $("#plantarse-btn").click(function() {
+                $.post("/plantarse", function(data) {
+                    $("#dealer-cartas").text(data.dealer.cartas.join(", "));
+                    $("#dealer-puntos").text("Puntos: " + data.dealer.puntos);
+                });
+            });
+        });
+    </script>
+
 </body>
 </html>
-
