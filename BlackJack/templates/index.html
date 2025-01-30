@@ -3,52 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blackjack - Visión Artificial</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-</head>
-<body style="background-color: green; color: white; text-align: center;">
-    <h1>Blackjack - Visión Artificial</h1>
-
-    <button id="iniciar-btn">Iniciar Juego</button>
-    <button id="capturar-cartas-btn">Capturar Cartas del Jugador</button>
-    <button id="plantarse-btn">Plantarse</button> <!-- 🔥 Nuevo botón -->
-
-    <h2>Jugador</h2>
-    <div id="jugador-cartas"></div>
-    <div id="jugador-puntos"></div>
-
-    <h2>Dealer</h2>
-    <div id="dealer-cartas"></div>
-    <div id="dealer-puntos"></div>
-
+    <title>Blackjack</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #2E8B57;
+            color: white;
+        }
+        h1 {
+            font-size: 36px;
+        }
+        button {
+            background-color: #FFD700;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #FFA500;
+        }
+        .game-info {
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            margin: 20px auto;
+            width: 50%;
+            border-radius: 10px;
+        }
+        #resultado {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 20px;
+            color: yellow;
+        }
+    </style>
     <script>
-        $(document).ready(function() {
-            $("#iniciar-btn").click(function() {
-                $.post("/iniciar", function(data) {
-                    $("#dealer-cartas").text(data.dealer.cartas.join(", "));
-                    $("#dealer-puntos").text("Puntos: " + data.dealer.puntos);
-                });
+        function iniciarJuego() {
+            fetch('/iniciar', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("dealerCartas").innerText = "Dealer: " + data.dealer.cartas.join(', ');
+                document.getElementById("dealerPuntos").innerText = "Puntos: " + data.dealer.puntos;
+                document.getElementById("resultado").innerText = "";  // Resetear resultado
             });
+        }
 
-            $("#capturar-cartas-btn").click(function() {
-                $.post("/capturar_cartas", function(data) {
-                    $("#jugador-cartas").text(data.jugador.cartas.join(", "));
-                    $("#jugador-puntos").text("Puntos: " + data.jugador.puntos);
-
-                    if (data.jugador.mensaje) {
-                        alert(data.jugador.mensaje);
-                    }
-                });
+        function capturarCartas() {
+            fetch('/capturar_cartas', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("jugadorCartas").innerText = "Jugador: " + data.jugador.cartas.join(', ');
+                document.getElementById("jugadorPuntos").innerText = "Puntos: " + data.jugador.puntos;
             });
+        }
 
-            $("#plantarse-btn").click(function() {
-                $.post("/plantarse", function(data) {
-                    $("#dealer-cartas").text(data.dealer.cartas.join(", "));
-                    $("#dealer-puntos").text("Puntos: " + data.dealer.puntos);
-                });
-            });
-        });
+        function plantarse() {
+            fetch('/plantarse', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("dealerCartas").innerText = "Dealer: " + data.dealer.cartas.join(', ');
+                document.getElementById("dealerPuntos").innerText = "Puntos: " + data.dealer.puntos;
+                document.getElementById("resultado").innerText = data.resultado;  // 🔥 Mostrar resultado
+            })
+            .catch(error => console.error('Error:', error));
+        }
     </script>
-
+</head>
+<body>
+    <h1>Blackjack</h1>
+    <button onclick="iniciarJuego()">Iniciar Juego</button>
+    <button onclick="capturarCartas()">Capturar Cartas</button>
+    <button onclick="plantarse()">Plantarse</button>
+    
+    <div class="game-info">
+        <h2>Estado del Juego</h2>
+        <p id="jugadorCartas">Jugador: </p>
+        <p id="jugadorPuntos">Puntos: </p>
+        <p id="dealerCartas">Dealer: </p>
+        <p id="dealerPuntos">Puntos: </p>
+        
+        <!-- 🔥 Aquí se muestra el resultado -->
+        <h2 id="resultado"></h2>
+    </div>
 </body>
 </html>

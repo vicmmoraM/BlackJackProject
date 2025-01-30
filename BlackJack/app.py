@@ -36,14 +36,10 @@ def capturar_cartas():
 
 @app.route('/plantarse', methods=['POST'])
 def plantarse():
-    """El jugador decide plantarse, el dealer juega automáticamente."""
-    turno_dealer()
-    return jsonify({
-        'dealer': {
-            'cartas': dealer.mostrar_mano().split(', '),
-            'puntos': dealer.calcular_puntaje()
-        }
-    })
+    """El jugador decide plantarse, el dealer juega automáticamente y se muestra el resultado."""
+    respuesta = turno_dealer()
+    datos = respuesta.json  # Extraer datos del JSON
+    return jsonify(datos)
 
 
 if __name__ == '__main__':

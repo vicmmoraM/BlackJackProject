@@ -71,7 +71,7 @@ def turno_dealer():
     global mazo, dealer  
 
     while True:
-        accion_dealer = dealer_ai.decidir_accion(dealer.calcular_puntaje(), jugador.calcular_puntaje())
+        accion_dealer = dealer_ai.decidir_accion(dealer.mano, jugador.calcular_puntaje())
         if accion_dealer == "tomar carta":
             nueva_carta = mazo.repartir_carta()  # 🔥 Dealer toma solo 1 carta
             if nueva_carta:
@@ -90,11 +90,12 @@ def turno_dealer():
         else:
             print(f"🤖 Dealer decide plantarse con {dealer.mostrar_mano()} - Puntos: {dealer.calcular_puntaje()}")
             break
-
+    
     # ✅ Retornar la actualización para que se muestre en la interfaz
     return jsonify({
         'dealer': {
             'cartas': dealer.mostrar_mano().split(', '),
             'puntos': dealer.calcular_puntaje()
         }
+        
     })
