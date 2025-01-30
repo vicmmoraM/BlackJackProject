@@ -26,10 +26,10 @@ def detectar_cartas(imagen, conf=0.5):
 
     :param imagen: Imagen capturada (numpy array).
     :param conf: Umbral de confianza para detección.
-    :return: Lista de cartas detectadas.
+    :return: Lista de cartas detectadas sin duplicados.
     """
     results = model(imagen, conf=conf)
-    
+
     if not results or len(results) == 0 or not hasattr(results[0], "boxes"):
         return []
 
@@ -42,9 +42,14 @@ def detectar_cartas(imagen, conf=0.5):
             confianza = box.conf[0].item()
             carta_nombre = result.names[class_id]  # Nombre de la carta
 
-            # 📌 Solo tomar la detección con el `y` más pequeño (para evitar dobles detecciones)
-            if carta_nombre not in cartas_detectadas or y1 < cartas_detectadas[carta_nombre][1]:
-                cartas_detectadas[carta_nombre] = (confianza, y1)
+            # 📌 Solo considerar cartas con confianza suficiente
+            if confianza >= conf:
+                # 📌 Solo tomar la detección con el `y` más pequeño (para evitar dobles detecciones)
+                if carta_nombre not in cartas_detectadas or y1 < cartas_detectadas[carta_nombre][1]:
+                    cartas_detectadas[carta_nombre] = (confianza, y1)
 
-    # 📌 Guardar solo las cartas con detección en la esquina superior
-    return list(cartas_detectadas.keys())
+    # 📌 Guardar solo las cartas detectadas en la parte superior de la imagen
+    cartas_finales = list(cartas_detectadas.keys())
+    print(f"📸 Cartas detectadas en la imagen: {cartas_finales}")
+    
+    return cartas_finales

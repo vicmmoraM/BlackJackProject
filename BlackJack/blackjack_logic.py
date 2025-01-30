@@ -13,89 +13,121 @@ dealer = Jugador("Dealer")
 dealer_ai = DealerAI(mazo)
 
 def iniciar_juego():
-    """Reparte 2 cartas al dealer y prepara el juego."""
-    global mazo, dealer  
-    dealer.mano = [mazo.repartir_carta(), mazo.repartir_carta()]  # 🔥 Dealer recibe 2 cartas al inicio
-    for carta in dealer.mano:
-        if carta in mazo.cartas:
-            mazo.cartas.remove(carta)  # 🔥 Eliminar cartas del mazo
+    """Reparte 2 cartas al jugador y 2 al dealer al inicio del juego."""
+    global mazo, dealer, jugador  
     
-    print(f"✅ Dealer recibe sus 2 cartas: {dealer.mostrar_mano()} - Puntos: {dealer.calcular_puntaje()}")
+    # Repartir cartas iniciales
+    jugador.mano = [mazo.repartir_carta(), mazo.repartir_carta()]
+    dealer.mano = [mazo.repartir_carta(), mazo.repartir_carta()]
+    
+    # Eliminar cartas del mazo para evitar duplicados
+    mazo.eliminar_cartas_detectadas([str(carta) for carta in jugador.mano + dealer.mano])
+    
+    print(f"✅ Jugador recibe: {jugador.mostrar_mano()} - Puntos: {jugador.calcular_puntaje()}")
+    print(f"✅ Dealer recibe: {dealer.mostrar_mano()} - Puntos: {dealer.calcular_puntaje()}")
+    
+    return {
+        'jugador': {
+            'cartas': [str(carta) for carta in jugador.mano],
+            'puntos': jugador.calcular_puntaje()
+        },
+        'dealer': {
+            'cartas': [str(carta) for carta in dealer.mano],
+            'puntos': dealer.calcular_puntaje()
+        }
+    }
 
-def detectar_cartas_jugador():
-    """Captura las cartas del jugador con la cámara, las convierte a formato estándar y elimina esas cartas del mazo."""
+import cv2
+from detectar_cartas import detectar_cartas
+import configuracion as cfg  # 📌 Para obtener la URL de DroidCam
+
+def capturar_cartas():
+    """Detecta en tiempo real las cartas del jugador desde DroidCam y las actualiza en su mano."""
     global mazo, jugador  
 
-    cap = cv2.VideoCapture(cfg.video_url if cfg.use_droidcam else 0)
+    # 📌 Capturar imagen desde DroidCam o la webcam según la configuración
+    cap = cv2.VideoCapture(cfg.video_url if cfg.use_droidcam else 0)  
     ret, frame = cap.read()
     cap.release()
 
     if ret:
-        cartas_detectadas = detectar_cartas(frame, conf=cfg.umbral_confianza)
-        cartas_a_eliminar = []
-
+        cartas_detectadas = detectar_cartas(frame, conf=cfg.umbral_confianza)  # 📌 Usa el umbral configurado
         for carta_str in cartas_detectadas:
-            if carta_str in card_map:  # 🔥 Convertimos la carta al formato correcto según `card_map`
+            if carta_str in card_map:
                 valor, palo = card_map[carta_str]
                 nueva_carta = Carta(valor, palo)
-                jugador.mano.append(nueva_carta)
-                cartas_a_eliminar.append(str(nueva_carta))  # Convertimos a string para comparar correctamente
+                if str(nueva_carta) not in [str(carta) for carta in jugador.mano]:  # Evita duplicados
+                    jugador.mano.append(nueva_carta)
 
-        # ✅ 🔥 Eliminar las cartas detectadas del mazo ANTES de que el dealer juegue
-        mazo.cartas = [carta for carta in mazo.cartas if str(carta) not in cartas_a_eliminar]
+        # 🔥 Eliminamos del mazo solo las cartas detectadas en la vida real
+        mazo.eliminar_cartas_detectadas([str(carta) for carta in jugador.mano])
 
-        print(f"✅ Cartas detectadas y convertidas para el jugador: {jugador.mostrar_mano()} - Puntos: {jugador.calcular_puntaje()}")
+        print(f"🎴 Cartas detectadas en físico: {jugador.mostrar_mano()} - Puntos: {jugador.calcular_puntaje()}")
 
-    # 🚨 **Verificar si el jugador se pasó de 21**
-    if jugador.calcular_puntaje() > 21:
-        print("💀 ¡Te pasaste de 21, has perdido automáticamente!")
-        return jsonify({
-            'jugador': {
-                'cartas': jugador.mostrar_mano().split(', '),
-                'puntos': jugador.calcular_puntaje(),
-                'mensaje': "💀 ¡Te pasaste de 21, has perdido automáticamente!"
-            }
-        })
-
-    return jsonify({
+    return {
         'jugador': {
-            'cartas': jugador.mostrar_mano().split(', '),
+            'cartas': [str(carta) for carta in jugador.mano],
             'puntos': jugador.calcular_puntaje()
         }
-    })
+    }
+
+
+def determinar_ganador():
+    """Determina quién gana el juego según los puntajes finales."""
+    jugador_puntaje = jugador.calcular_puntaje()
+    dealer_puntaje = dealer.calcular_puntaje()
+    
+    if jugador_puntaje > 21:
+        resultado = "Dealer gana, el jugador se pasó de 21!"
+    elif dealer_puntaje > 21:
+        resultado = "Jugador gana, el dealer se pasó de 21!"
+    elif jugador_puntaje > dealer_puntaje:
+        resultado = "Jugador gana con más puntos!"
+    elif dealer_puntaje > jugador_puntaje:
+        resultado = "Dealer gana con más puntos!"
+    else:
+        resultado = "Empate, ambos tienen la misma puntuación!"
+    
+    print(f"🏆 {resultado}")
+    
+    return {
+        'resultado': resultado,
+        'jugador': {
+            'cartas': [str(carta) for carta in jugador.mano],
+            'puntos': jugador_puntaje
+        },
+        'dealer': {
+            'cartas': [str(carta) for carta in dealer.mano],
+            'puntos': dealer_puntaje
+        }
+    }
 
 
 
 def turno_dealer():
-    """El dealer usa la IA para tomar decisiones y solo toma cartas que realmente estén en el mazo."""
+    """El dealer juega su turno usando Minimax tras el plantarse del jugador."""
     global mazo, dealer  
-
+    
     while True:
         accion_dealer = dealer_ai.decidir_accion(dealer.mano, jugador.calcular_puntaje())
         if accion_dealer == "tomar carta":
-            nueva_carta = mazo.repartir_carta()  # 🔥 Dealer toma solo 1 carta
+            nueva_carta = mazo.repartir_carta()
             if nueva_carta:
                 dealer.mano.append(nueva_carta)
-
-                # ✅ Solo eliminamos la carta si realmente está en el mazo y no la tiene el jugador
-                if nueva_carta in mazo.cartas and str(nueva_carta) not in [str(c) for c in jugador.mano]:
-                    mazo.cartas.remove(nueva_carta)
-                else:
-                    print(f"⚠️ Advertencia: La carta {nueva_carta} ya fue tomada por el jugador y no está en el mazo.")
-
+                mazo.eliminar_cartas_detectadas([str(nueva_carta)])
                 print(f"🤖 Dealer toma una carta: {dealer.mostrar_mano()} - Puntos: {dealer.calcular_puntaje()}")
+                
                 if dealer.calcular_puntaje() > 21:
                     print("💀 Dealer se pasó de 21, el jugador gana!")
-                    break
+                    return {'resultado': 'Jugador gana', 'dealer': dealer.mostrar_mano(), 'puntos': dealer.calcular_puntaje()}
         else:
             print(f"🤖 Dealer decide plantarse con {dealer.mostrar_mano()} - Puntos: {dealer.calcular_puntaje()}")
             break
     
-    # ✅ Retornar la actualización para que se muestre en la interfaz
-    return jsonify({
+    return {
         'dealer': {
-            'cartas': dealer.mostrar_mano().split(', '),
+            'cartas': [str(carta) for carta in dealer.mano],
             'puntos': dealer.calcular_puntaje()
         }
-        
-    })
+    }
+

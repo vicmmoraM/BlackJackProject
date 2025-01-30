@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-from blackjack_logic import iniciar_juego, detectar_cartas_jugador, turno_dealer, jugador, dealer
+from blackjack_logic import iniciar_juego, capturar_cartas, turno_dealer, determinar_ganador
 
 app = Flask(__name__)
 
@@ -10,37 +10,28 @@ def index():
 
 @app.route('/iniciar', methods=['POST'])
 def iniciar():
-    """Inicia el juego y reparte las cartas iniciales al dealer."""
-    iniciar_juego()
-    return jsonify({
-        'dealer': {
-            'cartas': dealer.mostrar_mano().split(', '),
-            'puntos': dealer.calcular_puntaje()
-        }
-    })
+    """Inicia el juego y reparte las cartas iniciales al dealer y jugador."""
+    respuesta = iniciar_juego()
+    return jsonify(respuesta)
 
 @app.route('/capturar_cartas', methods=['POST'])
-def capturar_cartas():
-    """Captura las cartas del jugador y el dealer juega automáticamente después."""
-    detectar_cartas_jugador()
-    return jsonify({
-        'jugador': {
-            'cartas': jugador.mostrar_mano().split(', '),
-            'puntos': jugador.calcular_puntaje()
-        },
-        'dealer': {
-            'cartas': dealer.mostrar_mano().split(', '),
-            'puntos': dealer.calcular_puntaje()
-        }
-    })
+def capturar():
+    """El jugador toma una nueva carta."""
+    respuesta = capturar_cartas()
+    return jsonify(respuesta)
 
 @app.route('/plantarse', methods=['POST'])
 def plantarse():
-    """El jugador decide plantarse, el dealer juega automáticamente y se muestra el resultado."""
-    respuesta = turno_dealer()
-    datos = respuesta.json  # Extraer datos del JSON
-    return jsonify(datos)
+    """El jugador se planta, el dealer juega su turno y se determina el ganador."""
+    turno_dealer()
+    respuesta = determinar_ganador()
+    return jsonify(respuesta)
 
+@app.route('/doblar_apuesta', methods=['POST'])
+def doblar():
+    """Doble la apuesta del jugador (manejado en el frontend también)."""
+    nueva_apuesta = int(request.json['apuesta']) * 2
+    return jsonify({'nueva_apuesta': nueva_apuesta})
 
 if __name__ == '__main__':
     app.run(debug=True)
