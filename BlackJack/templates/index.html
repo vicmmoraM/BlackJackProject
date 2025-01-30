@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blackjack - Visión Artificial</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>Blackjack - Visión Artificial</h1>
+
+    <button id="btnIniciar">Iniciar Juego</button>
+    <button id="btnDealer" disabled>Turno del Dealer</button>
+
+    <h2>Jugador</h2>
+    <div id="jugador-cartas" class="cartas"></div>
+    <p id="jugador-puntos"></p>
+
+    <h2>Dealer</h2>
+    <div id="dealer-cartas" class="cartas"></div>
+    <p id="dealer-puntos"></p>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
+

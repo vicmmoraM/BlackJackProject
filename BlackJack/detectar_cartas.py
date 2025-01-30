@@ -1,12 +1,50 @@
 from ultralytics import YOLO
 
-# 📌 Cargar el modelo YOLOv8
+# 📌 Cargar modelo YOLOv8
 model = YOLO("yolov8s_playing_cards.pt")
 
-def detectar_cartas(frame, conf=0.5):
+# 📌 Mapeo de nombres de detección a valores de cartas
+card_map = {
+    '10C': ('10', 'Corazones'), '10D': ('10', 'Diamantes'), '10H': ('10', 'Tréboles'), '10S': ('10', 'Picas'),
+    '2C': ('2', 'Corazones'), '2D': ('2', 'Diamantes'), '2H': ('2', 'Tréboles'), '2S': ('2', 'Picas'),
+    '3C': ('3', 'Corazones'), '3D': ('3', 'Diamantes'), '3H': ('3', 'Tréboles'), '3S': ('3', 'Picas'),
+    '4C': ('4', 'Corazones'), '4D': ('4', 'Diamantes'), '4H': ('4', 'Tréboles'), '4S': ('4', 'Picas'),
+    '5C': ('5', 'Corazones'), '5D': ('5', 'Diamantes'), '5H': ('5', 'Tréboles'), '5S': ('5', 'Picas'),
+    '6C': ('6', 'Corazones'), '6D': ('6', 'Diamantes'), '6H': ('6', 'Tréboles'), '6S': ('6', 'Picas'),
+    '7C': ('7', 'Corazones'), '7D': ('7', 'Diamantes'), '7H': ('7', 'Tréboles'), '7S': ('7', 'Picas'),
+    '8C': ('8', 'Corazones'), '8D': ('8', 'Diamantes'), '8H': ('8', 'Tréboles'), '8S': ('8', 'Picas'),
+    '9C': ('9', 'Corazones'), '9D': ('9', 'Diamantes'), '9H': ('9', 'Tréboles'), '9S': ('9', 'Picas'),
+    'AC': ('A', 'Corazones'), 'AD': ('A', 'Diamantes'), 'AH': ('A', 'Tréboles'), 'AS': ('A', 'Picas'),
+    'JC': ('J', 'Corazones'), 'JD': ('J', 'Diamantes'), 'JH': ('J', 'Tréboles'), 'JS': ('J', 'Picas'),
+    'QC': ('Q', 'Corazones'), 'QD': ('Q', 'Diamantes'), 'QH': ('Q', 'Tréboles'), 'QS': ('Q', 'Picas'),
+    'KC': ('K', 'Corazones'), 'KD': ('K', 'Diamantes'), 'KH': ('K', 'Tréboles'), 'KS': ('K', 'Picas')
+}
+
+def detectar_cartas(imagen, conf=0.5):
     """
-    Detecta cartas en un fotograma usando YOLOv8.
-    Retorna el objeto results que contiene las detecciones.
+    Detecta cartas en una imagen usando YOLOv8.
+
+    :param imagen: Imagen capturada (numpy array).
+    :param conf: Umbral de confianza para detección.
+    :return: Lista de cartas detectadas.
     """
-    results = model(frame, conf=conf)  # Ejecutar la detección
-    return results  # Devolver el objeto YOLOv8 completo
+    results = model(imagen, conf=conf)
+    
+    if not results or len(results) == 0 or not hasattr(results[0], "boxes"):
+        return []
+
+    cartas_detectadas = {}
+
+    for result in results:
+        for box in result.boxes:
+            x1, y1, x2, y2 = map(int, box.xyxy[0])  # Obtener coordenadas del cuadro
+            class_id = int(box.cls[0])
+            confianza = box.conf[0].item()
+            carta_nombre = result.names[class_id]  # Nombre de la carta
+
+            # 📌 Solo tomar la detección con el `y` más pequeño (para evitar dobles detecciones)
+            if carta_nombre not in cartas_detectadas or y1 < cartas_detectadas[carta_nombre][1]:
+                cartas_detectadas[carta_nombre] = (confianza, y1)
+
+    # 📌 Guardar solo las cartas con detección en la esquina superior
+    return list(cartas_detectadas.keys())

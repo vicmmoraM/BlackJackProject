@@ -1,6 +1,6 @@
 import cv2
 from detectar_cartas import detectar_cartas  # Función para detectar cartas con YOLOv8
-import configuracion as cfg  # Configuración de la cámara
+import cosas.configuracion as cfg  # Configuración de la cámara
 
 # 📌 Configurar la cámara (DroidCam o webcam)
 cap = cv2.VideoCapture(cfg.video_url if cfg.use_droidcam else 0)
