@@ -10,7 +10,7 @@ from flask import jsonify
 mazo = Mazo()
 jugador = Jugador("Jugador")
 dealer = Jugador("Dealer")
-dealer_ai = DealerAI()
+dealer_ai = DealerAI(mazo)
 
 def iniciar_juego():
     """Reparte 2 cartas al dealer y prepara el juego."""

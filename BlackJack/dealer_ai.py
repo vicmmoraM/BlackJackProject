@@ -1,60 +1,72 @@
-class NodoDecision:
-    def __init__(self, condicion, si, no):
-        """
-        Nodo de decisión del árbol.
-
-        :param condicion: Función que evalúa si tomar el camino 'si' o 'no'.
-        :param si: Rama del árbol si la condición es verdadera.
-        :param no: Rama del árbol si la condición es falsa.
-        """
-        self.condicion = condicion
-        self.si = si
-        self.no = no
-
-    def evaluar(self, puntaje_dealer, puntaje_jugador):
-        """Evalúa el árbol de decisión y retorna 'tomar carta' o 'plantarse'."""
-        if self.condicion(puntaje_dealer, puntaje_jugador):
-            if isinstance(self.si, NodoDecision):
-                return self.si.evaluar(puntaje_dealer, puntaje_jugador)
-            return self.si  # Retorna la acción final
-        else:
-            if isinstance(self.no, NodoDecision):
-                return self.no.evaluar(puntaje_dealer, puntaje_jugador)
-            return self.no  # Retorna la acción final
-
-# 📌 Acciones finales
-nodo_plantarse = "plantarse"
-nodo_tomar_carta = "tomar carta"
-
-# 📍 Si el dealer tiene 17 o más, se planta
-nodo_dealer_17 = NodoDecision(
-    condicion=lambda dealer, jugador: dealer >= 17,
-    si=nodo_plantarse,
-    no=None  # Se llenará con la siguiente decisión
-)
-
-# 📍 Si el jugador ya se pasó de 21, el dealer se planta automáticamente
-nodo_jugador_se_paso = NodoDecision(
-    condicion=lambda dealer, jugador: jugador > 21,
-    si=nodo_plantarse,
-    no=nodo_dealer_17  # Si el jugador no se pasó, seguimos evaluando
-)
-
-# 📍 Si el dealer tiene menos puntos que el jugador, debe tomar carta
-nodo_comparar_puntajes = NodoDecision(
-    condicion=lambda dealer, jugador: dealer < jugador,
-    si=nodo_tomar_carta,
-    no=nodo_plantarse
-)
-
-# 📍 Conectar la estructura del árbol
-nodo_dealer_17.no = nodo_comparar_puntajes 
-
 # 📌 Clase de IA del Dealer
-class DealerAI:
-    def __init__(self):
-        self.arbol_decision = nodo_jugador_se_paso
+from mazo import Mazo, Carta
+from jugador import Jugador
+import copy
 
-    def decidir_accion(self, puntaje_dealer, puntaje_jugador):
-        """Usa el árbol de decisión para determinar si el dealer debe tomar carta o plantarse."""
-        return self.arbol_decision.evaluar(puntaje_dealer, puntaje_jugador)
+class DealerAI:
+    def __init__(self, mazo):
+        self.mazo = mazo
+        self.indice_carta = 0  # 📌 Mantiene el seguimiento de la carta a tomar en orden
+    
+    def minimax(self, dealer_mano, jugador_puntaje, profundidad, es_turno_dealer, mazo_simulado):
+        dealer_puntaje = self.calcular_puntaje(dealer_mano)
+        
+        # 📌 Condiciones de fin del juego
+        if dealer_puntaje > 21:
+            return -1  # Dealer pierde automáticamente
+        if dealer_puntaje >= 17:  # Dealer se planta a 17 o más
+            if dealer_puntaje > jugador_puntaje or jugador_puntaje > 21:
+                return 1  # Dealer gana
+            elif dealer_puntaje == jugador_puntaje:
+                return 0  # Empate
+            else:
+                return -1  # Dealer pierde
+        
+        if profundidad == 0:
+            return dealer_puntaje / 21  # Evaluación heurística
+        
+        if es_turno_dealer:
+            mejor_valor = -float('inf')
+            for i in range(len(mazo_simulado.cartas)):
+                nueva_mano = dealer_mano[:] + [mazo_simulado.cartas[i]]  # 📌 Asegurar que dealer_mano es una lista
+                mazo_copia = copy.deepcopy(mazo_simulado)  # 📌 Clonar mazo para evitar alterar el original
+                mazo_copia.cartas.pop(i)  # 📌 Simular que la carta ha sido tomada
+                valor = self.minimax(nueva_mano, jugador_puntaje, profundidad - 1, False, mazo_copia)
+                mejor_valor = max(mejor_valor, valor)
+            return mejor_valor
+        else:
+            peor_valor = float('inf')
+            for i in range(len(mazo_simulado.cartas)):
+                nueva_mano = dealer_mano[:] + [mazo_simulado.cartas[i]]  # 📌 Asegurar que dealer_mano es una lista
+                mazo_copia = copy.deepcopy(mazo_simulado)  # 📌 Clonar mazo para evitar alterar el original
+                mazo_copia.cartas.pop(i)  # 📌 Simular que la carta ha sido tomada
+                valor = self.minimax(nueva_mano, jugador_puntaje, profundidad - 1, True, mazo_copia)
+                peor_valor = min(peor_valor, valor)
+            return peor_valor
+    
+    def calcular_puntaje(self, mano):
+        total = sum(carta.obtener_valor() for carta in mano)
+        ases = sum(1 for carta in mano if carta.valor == 'A')
+        while total > 21 and ases > 0:
+            total -= 10  # Ajustar As de 11 a 1
+            ases -= 1
+        return total
+    
+    def decidir_accion(self, dealer_mano, jugador_puntaje):
+        """Evalúa la mejor acción con Minimax."""
+        mazo_simulado = copy.deepcopy(self.mazo)  # 📌 Clonar mazo para la simulación
+        if not isinstance(dealer_mano, list):
+            dealer_mano = []  # 📌 Asegurar que dealer_mano es una lista vacía si es un número
+        if self.indice_carta < len(mazo_simulado.cartas):
+            proxima_carta = mazo_simulado.cartas[self.indice_carta]
+            tomar_carta_valor = self.minimax(dealer_mano + [proxima_carta], jugador_puntaje, 3, False, mazo_simulado)
+        else:
+            tomar_carta_valor = -float('inf')
+        
+        plantarse_valor = self.minimax(dealer_mano, jugador_puntaje, 3, False, mazo_simulado)
+        
+        if tomar_carta_valor > plantarse_valor:
+            self.indice_carta += 1  # 📌 Avanza en el mazo solo si toma la carta
+            return "tomar carta"
+        else:
+            return "plantarse"
