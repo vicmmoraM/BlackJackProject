@@ -34,6 +34,10 @@
                 $.post("/capturar_cartas", function(data) {
                     $("#jugador-cartas").text(data.jugador.cartas.join(", "));
                     $("#jugador-puntos").text("Puntos: " + data.jugador.puntos);
+
+                    if (data.jugador.mensaje) {
+                        alert(data.jugador.mensaje);
+                    }
                 });
             });
 

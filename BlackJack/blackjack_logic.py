@@ -46,6 +46,17 @@ def detectar_cartas_jugador():
 
         print(f"✅ Cartas detectadas y convertidas para el jugador: {jugador.mostrar_mano()} - Puntos: {jugador.calcular_puntaje()}")
 
+    # 🚨 **Verificar si el jugador se pasó de 21**
+    if jugador.calcular_puntaje() > 21:
+        print("💀 ¡Te pasaste de 21, has perdido automáticamente!")
+        return jsonify({
+            'jugador': {
+                'cartas': jugador.mostrar_mano().split(', '),
+                'puntos': jugador.calcular_puntaje(),
+                'mensaje': "💀 ¡Te pasaste de 21, has perdido automáticamente!"
+            }
+        })
+
     return jsonify({
         'jugador': {
             'cartas': jugador.mostrar_mano().split(', '),
