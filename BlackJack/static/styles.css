@@ -5,8 +5,10 @@ body {
     background: radial-gradient(circle, #0a3911 30%, #052a0d 100%);
     color: white;
     position: relative;
-    overflow: hidden;
+    overflow-x: hidden; 
+    overflow-y: auto; /
 }
+
 
 /* 📌 FONDO CON ICONOS DE CASINO */
 .fondo-casino {
@@ -93,11 +95,11 @@ body {
 h1 {
     font-size: 50px;
     font-weight: bold;
-    color: #cfa300; /* 🔥 Dorado más oscuro */
+    color: #cfa300; 
     text-shadow: 0px 0px 8px rgba(207, 163, 0, 1), 0px 0px 16px rgba(207, 163, 0, 0.8);
     padding: 15px;
     display: inline-block;
-    border: 5px solid #cfa300; /* 🔥 Borde dorado más tenue */
+    border: 5px solid #cfa300; 
     border-radius: 15px;
     background: linear-gradient(180deg, rgba(40, 40, 40, 0.9), rgba(10, 10, 10, 0.95));
     box-shadow: 0px 0px 15px rgba(207, 163, 0, 0.6);
@@ -136,7 +138,7 @@ h1 {
     cursor: pointer;
     transition: transform 0.2s, box-shadow 0.2s;
 
-    /* 🔥 Truco para centrar el número */
+    /* Centrar el número */
     display: flex;
     align-items: center;
     justify-content: center;
