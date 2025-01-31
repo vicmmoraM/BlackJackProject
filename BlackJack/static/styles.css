@@ -1,70 +1,265 @@
+/* 📌 ESTILO GENERAL */
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Arial', sans-serif;
     text-align: center;
-    background-color: #2E8B57;
+    background: radial-gradient(circle, #0a3911 30%, #052a0d 100%);
     color: white;
+    position: relative;
+    overflow: hidden;
 }
 
-button {
-    padding: 10px 20px;
-    margin: 10px;
-    border: none;
-    cursor: pointer;
-    background-color: #FFD700;
-    color: black;
-    font-size: 16px;
+/* 📌 FONDO CON ICONOS DE CASINO */
+.fondo-casino {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+/* 📌 Elementos de fondo (fichas, cartas, dados, diamantes, monedas) */
+.icono-casino {
+    position: absolute;
+    font-size: 40px;
+    opacity: 0.3;
+    animation: flotar 10s infinite alternate ease-in-out, girar 6s infinite linear;
+}
+
+/* 📌 Animación de movimiento lento */
+@keyframes flotar {
+    from {
+        transform: translateY(0px);
+    }
+    to {
+        transform: translateY(30px);
+    }
+}
+
+/* 📌 Animación de giro para los iconos */
+@keyframes girar {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* 📌 BORDES CON EFECTO DE NEÓN */
+.borde-neon {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.borde-neon::before,
+.borde-neon::after {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 5px;
+    background: linear-gradient(90deg, red, yellow, green, cyan, blue, violet);
+    animation: brilloNeon 5s infinite alternate;
+}
+
+.borde-neon::before {
+    top: 0;
+}
+
+.borde-neon::after {
+    bottom: 0;
+}
+
+/* 📌 Animación de luces neón */
+@keyframes brilloNeon {
+    from {
+        filter: blur(2px);
+        opacity: 0.8;
+    }
+    to {
+        filter: blur(4px);
+        opacity: 1;
+    }
+}
+
+
+h1 {
+    font-size: 50px;
     font-weight: bold;
-    border-radius: 5px;
+    color: #cfa300; /* 🔥 Dorado más oscuro */
+    text-shadow: 0px 0px 8px rgba(207, 163, 0, 1), 0px 0px 16px rgba(207, 163, 0, 0.8);
+    padding: 15px;
+    display: inline-block;
+    border: 5px solid #cfa300; /* 🔥 Borde dorado más tenue */
+    border-radius: 15px;
+    background: linear-gradient(180deg, rgba(40, 40, 40, 0.9), rgba(10, 10, 10, 0.95));
+    box-shadow: 0px 0px 15px rgba(207, 163, 0, 0.6);
+    margin-top: 20px;
+    animation: parpadeo 1.5s infinite alternate;
 }
 
+/* 📌 Efecto de parpadeo más sutil */
+@keyframes parpadeo {
+    from {
+        text-shadow: 0px 0px 8px rgb(183, 144, 3), 0px 0px 16px rgba(207, 163, 0, 0.8);
+    }
+    to {
+        text-shadow: 0px 0px 12px rgb(169, 133, 2), 0px 0px 20px rgba(207, 163, 0, 0.8);
+    }
+}
+
+/* 📌 CONTENEDOR DE APUESTAS */
 .betting-container {
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.7);
     padding: 20px;
     margin: 20px auto;
     width: 50%;
     border-radius: 10px;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
 }
 
+/* 📌 FICHAS DE APUESTAS */
 .chips {
     display: flex;
     justify-content: center;
-    gap: 10px;
+    gap: 15px;
     margin-bottom: 10px;
 }
 
 .chip {
-    background-color: white;
-    color: black;
-    border: 2px solid #FFD700;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
-    width: 50px;
-    height: 50px;
+    font-size: 22px;
+    font-weight: bold;
+    text-align: center;
+    color: white;
+    border: 3px solid gold;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.6);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+
+    /* 🔥 Truco para centrar el número */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 📌 Efecto al pasar el mouse */
+.chip:hover {
+    transform: scale(1.1);
+    box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.8);
+}
+
+/* 📌 Colores de las fichas */
+.chip[data-value="5"] { background: red; }
+.chip[data-value="10"] { background: blue; }
+.chip[data-value="25"] { background: green; }
+.chip[data-value="50"] { background: purple; }
+.chip[data-value="100"] { background: black; }
+
+/* 📌 BOTONES */
+button {
+    padding: 12px 24px;
+    margin: 10px;
+    border: none;
+    cursor: pointer;
+    background: linear-gradient(180deg, #FFD700, #CFA300);
+    color: black;
     font-size: 18px;
     font-weight: bold;
-    cursor: pointer;
+    border-radius: 8px;
+    box-shadow: 2px 4px 5px rgba(0, 0, 0, 0.5);
+    transition: transform 0.1s ease-in-out;
 }
 
-.chip:hover {
-    background-color: #FFD700;
-    color: black;
+button:hover {
+    background: linear-gradient(180deg, #EEC900, #B8860B);
+    transform: scale(1.05);
 }
 
+/* 📌 SECCIÓN DEL JUEGO */
+.game-container {
+    display: none;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    width: 70%;
+    margin: auto;
+    border-radius: 15px;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+}
+
+/* 📌 CONTENEDOR DE CARTAS */
+.cartas-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* 📌 ESTILO MEJORADO DE CARTAS */
 .card {
-    display: inline-block;
-    width: 80px;
-    height: 120px;
-    background-color: white;
+    width: 100px;
+    height: 150px;
+    background: white;
     color: black;
     border-radius: 10px;
-    text-align: center;
-    line-height: 120px;
-    font-size: 24px;
-    font-weight: bold;
-    margin: 10px;
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
     border: 2px solid black;
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 8px;
+    position: relative;
 }
 
+/* 📌 Cartas rojas para corazones y diamantes */
 .card.red {
-    color: red; /* Hace los corazones y diamantes rojos */
+    color: red;
+}
+
+/* 📌 Posición del valor en las esquinas de la carta */
+.card::before,
+.card::after {
+    content: attr(data-value);
+    position: absolute;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.card::before {
+    top: 5px;
+    left: 5px;
+}
+
+.card::after {
+    bottom: 5px;
+    right: 5px;
+    transform: rotate(180deg);
+}
+
+/* 📌 Símbolo del palo en el centro */
+.card .palo {
+    font-size: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+}
+
+/* 📌 ESTILO DEL RESULTADO */
+#resultado {
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 20px;
 }

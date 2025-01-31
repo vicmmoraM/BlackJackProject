@@ -2,13 +2,16 @@ document.addEventListener("DOMContentLoaded", function() {
     let currentBet = 0;
     let hasDoubled = false;
 
+    // Manejar clic en fichas de apuesta para acumular valor
     document.querySelectorAll(".chip").forEach(chip => {
         chip.addEventListener("click", function() {
-            currentBet = parseInt(this.getAttribute("data-value"));
+            let betValue = parseInt(this.getAttribute("data-value"));
+            currentBet += betValue; // 🔥 Se suma la apuesta en vez de reemplazarla
             document.getElementById("betAmount").textContent = currentBet;
         });
     });
 
+    // Confirmar apuesta y mostrar pantalla de juego
     document.getElementById("btnConfirmBet").addEventListener("click", function() {
         if (currentBet > 0) {
             document.getElementById("finalBetAmount").textContent = currentBet;
@@ -19,6 +22,33 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
+    // 📌 FONDO DINÁMICO DE CASINO (SIN ROMPER NADA)
+    const iconos = ["🎲", "🎰", "🃏", "♦️", "♠️", "♥️", "♣️", "💰", "🎟️", "🏆"]; // Iconos de casino
+
+    const fondoCasino = document.createElement("div");
+    fondoCasino.classList.add("fondo-casino");
+    document.body.appendChild(fondoCasino);
+
+    const bordeNeon = document.createElement("div");
+    bordeNeon.classList.add("borde-neon");
+    document.body.appendChild(bordeNeon);
+
+    for (let i = 0; i < 15; i++) { // 🔥 Agrega 15 elementos flotantes
+        let icono = document.createElement("div");
+        icono.classList.add("icono-casino");
+        icono.textContent = iconos[Math.floor(Math.random() * iconos.length)];
+
+        // Posición aleatoria en la pantalla
+        icono.style.left = Math.random() * 100 + "vw";
+        icono.style.top = Math.random() * 100 + "vh";
+        icono.style.animationDuration = (8 + Math.random() * 5) + "s"; // 🔥 Duración aleatoria
+        icono.style.animationDelay = Math.random() * 5 + "s"; // 🔥 Empiezan en tiempos distintos
+
+        fondoCasino.appendChild(icono);
+    }
+
+    // 📌 AQUÍ SIGUEN TUS FUNCIONES ORIGINALES (NO SE BORRAN)
+    
     function obtenerSimbolo(palo) {
         const simbolos = {
             "Corazones": "♥",
@@ -30,7 +60,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function generarCartaHTML(carta) {
-        let partes = carta.split(" de "); // Separa valor y palo
+        let partes = carta.split(" de "); 
         let valor = partes[0];
         let palo = partes[1];
 
@@ -38,19 +68,23 @@ document.addEventListener("DOMContentLoaded", function() {
         
         let divCarta = document.createElement("div");
         divCarta.classList.add("card");
-        divCarta.innerHTML = `${valor} ${simbolo}`;
+        divCarta.setAttribute("data-value", valor);
 
-        // 🔥 Agregar clase roja a corazones y diamantes
         if (palo === "Corazones" || palo === "Diamantes") {
             divCarta.classList.add("red");
         }
 
+        let divPalo = document.createElement("div");
+        divPalo.classList.add("palo");
+        divPalo.textContent = simbolo;
+
+        divCarta.appendChild(divPalo);
         return divCarta;
     }
 
     function actualizarCartas(elementId, cartas) {
         let container = document.getElementById(elementId);
-        container.innerHTML = ""; // 🔥 Limpia antes de actualizar
+        container.innerHTML = ""; 
 
         cartas.forEach(carta => {
             let cartaHTML = generarCartaHTML(carta);
@@ -87,7 +121,6 @@ document.addEventListener("DOMContentLoaded", function() {
             document.getElementById("dealerPuntos").textContent = "Puntos: " + data.dealer.puntos;
             document.getElementById("resultado").innerText = data.resultado || "Fin del juego";
 
-            // 🔥 Deshabilitar botones después de plantarse
             document.getElementById("btnCapturar").disabled = true;
             document.getElementById("btnTomar").disabled = true;
             document.getElementById("btnDoblar").disabled = true;
@@ -107,7 +140,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     document.getElementById("btnTomar").addEventListener("click", function() {
-        fetch("/capturar_cartas", { method: "POST" })  // 🔥 Se mantiene capturar cartas aquí
+        fetch("/capturar_cartas", { method: "POST" })
         .then(response => response.json())
         .then(data => {
             actualizarCartas("jugadorCartas", data.jugador.cartas);
