@@ -115,16 +115,6 @@ h1 {
     }
 }
 
-/* 📌 CONTENEDOR DE APUESTAS */
-.betting-container {
-    background: rgba(0, 0, 0, 0.7);
-    padding: 20px;
-    margin: 20px auto;
-    width: 50%;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-}
-
 /* 📌 FICHAS DE APUESTAS */
 .chips {
     display: flex;
@@ -204,24 +194,6 @@ button:hover {
     margin-top: 20px;
 }
 
-/* 📌 ESTILO MEJORADO DE CARTAS */
-.card {
-    width: 100px;
-    height: 150px;
-    background: white;
-    color: black;
-    border-radius: 10px;
-    border: 2px solid black;
-    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);
-    text-align: center;
-    font-size: 22px;
-    font-weight: bold;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 8px;
-    position: relative;
-}
 
 /* 📌 Cartas rojas para corazones y diamantes */
 .card.red {
@@ -248,18 +220,50 @@ button:hover {
     transform: rotate(180deg);
 }
 
-/* 📌 Símbolo del palo en el centro */
-.card .palo {
-    font-size: 50px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-grow: 1;
-}
-
 /* 📌 ESTILO DEL RESULTADO */
 #resultado {
     font-size: 24px;
     font-weight: bold;
     margin-top: 20px;
+}
+
+/* 📌 ESTILO PARA LA SECCIÓN DE APUESTAS */
+.betting-container {
+    background: rgba(0, 0, 0, 0.9);
+    padding: 20px;
+    margin: 40px auto;
+    width: 60%;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+    border: 4px solid gold;
+    position: relative;
+    bottom: -30px; /* 🔥 Posiciona más abajo */
+}
+
+/* 📌 ESTILO MEJORADO PARA LAS CARTAS */
+.card {
+    width: 100px;
+    height: 150px;
+    background: white;
+    color: black;
+    border-radius: 10px;
+    border: 2px solid black;
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+/* 📌 Aumentando el tamaño del símbolo del palo */
+.card .palo {
+    font-size: 70px; /* 🔥 Aumentado el tamaño */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
 }

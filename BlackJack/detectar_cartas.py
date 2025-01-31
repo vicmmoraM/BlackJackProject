@@ -1,7 +1,7 @@
 from ultralytics import YOLO
 
 # 📌 Cargar modelo YOLOv8
-model = YOLO("yolov8s_playing_cards.pt")
+model = YOLO("BlackJack/yolov8s_playing_cards.pt")
 
 # 📌 Mapeo de nombres de detección a valores de cartas
 card_map = {
