@@ -19,12 +19,53 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
+    function obtenerSimbolo(palo) {
+        const simbolos = {
+            "Corazones": "♥",
+            "Diamantes": "♦",
+            "Tréboles": "♣",
+            "Picas": "♠"
+        };
+        return simbolos[palo] || "";
+    }
+
+    function generarCartaHTML(carta) {
+        let partes = carta.split(" de "); // Separa valor y palo
+        let valor = partes[0];
+        let palo = partes[1];
+
+        let simbolo = obtenerSimbolo(palo);
+        
+        let divCarta = document.createElement("div");
+        divCarta.classList.add("card");
+        divCarta.innerHTML = `${valor} ${simbolo}`;
+
+        // 🔥 Agregar clase roja a corazones y diamantes
+        if (palo === "Corazones" || palo === "Diamantes") {
+            divCarta.classList.add("red");
+        }
+
+        return divCarta;
+    }
+
+    function actualizarCartas(elementId, cartas) {
+        let container = document.getElementById(elementId);
+        container.innerHTML = ""; // 🔥 Limpia antes de actualizar
+
+        cartas.forEach(carta => {
+            let cartaHTML = generarCartaHTML(carta);
+            container.appendChild(cartaHTML);
+        });
+    }
+
     document.getElementById("btnIniciar").addEventListener("click", function() {
         fetch("/iniciar", { method: "POST" })
         .then(response => response.json())
         .then(data => {
-            document.getElementById("dealerCartas").innerHTML = "Dealer: " + data.dealer.cartas.join(", ");
+            actualizarCartas("dealerCartas", data.dealer.cartas);
+            actualizarCartas("jugadorCartas", data.jugador.cartas);
             document.getElementById("dealerPuntos").textContent = "Puntos: " + data.dealer.puntos;
+            document.getElementById("jugadorPuntos").textContent = "Puntos: " + data.jugador.puntos;
             document.getElementById("resultado").innerText = "";
         });
     });
@@ -33,7 +74,7 @@ document.addEventListener("DOMContentLoaded", function() {
         fetch("/capturar_cartas", { method: "POST" })
         .then(response => response.json())
         .then(data => {
-            document.getElementById("jugadorCartas").innerHTML = "Jugador: " + data.jugador.cartas.join(", ");
+            actualizarCartas("jugadorCartas", data.jugador.cartas);
             document.getElementById("jugadorPuntos").textContent = "Puntos: " + data.jugador.puntos;
         });
     });
@@ -42,7 +83,7 @@ document.addEventListener("DOMContentLoaded", function() {
         fetch("/plantarse", { method: "POST" })
         .then(response => response.json())
         .then(data => {
-            document.getElementById("dealerCartas").innerHTML = "Dealer: " + data.dealer.cartas.join(", ");
+            actualizarCartas("dealerCartas", data.dealer.cartas);
             document.getElementById("dealerPuntos").textContent = "Puntos: " + data.dealer.puntos;
             document.getElementById("resultado").innerText = data.resultado || "Fin del juego";
 
@@ -69,9 +110,8 @@ document.addEventListener("DOMContentLoaded", function() {
         fetch("/capturar_cartas", { method: "POST" })  // 🔥 Se mantiene capturar cartas aquí
         .then(response => response.json())
         .then(data => {
-            document.getElementById("jugadorCartas").innerHTML = "Jugador: " + data.jugador.cartas.join(", ");
+            actualizarCartas("jugadorCartas", data.jugador.cartas);
             document.getElementById("jugadorPuntos").textContent = "Puntos: " + data.jugador.puntos;
         });
     });
 });
-
