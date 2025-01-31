@@ -1,3 +1,5 @@
+import random
+
 class Carta:
     def __init__(self, valor, palo):
         self.valor = valor
@@ -19,7 +21,15 @@ class Mazo:
         valores = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
         palos = ['Corazones', 'Diamantes', 'Tréboles', 'Picas']
         self.cartas = [Carta(valor, palo) for valor in valores for palo in palos]
+        self.barajar()
     
+    def barajar(self):
+        """Mezcla las cartas del mazo aleatoriamente."""
+        random.shuffle(self.cartas)
+        print("🔀 Mazo barajado:")
+        for carta in self.cartas:
+            print(carta)
+        
     def repartir_carta(self):
         return self.cartas.pop(0) if self.cartas else None
 

@@ -37,10 +37,6 @@ def iniciar_juego():
         }
     }
 
-import cv2
-from detectar_cartas import detectar_cartas
-import configuracion as cfg  # 📌 Para obtener la URL de DroidCam
-
 def capturar_cartas():
     """Detecta en tiempo real las cartas del jugador desde DroidCam y las actualiza en su mano."""
     global mazo, jugador  
