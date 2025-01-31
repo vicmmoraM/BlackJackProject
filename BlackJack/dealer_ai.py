@@ -11,7 +11,7 @@ class DealerAI:
     def minimax(self, dealer_mano, jugador_puntaje, profundidad, es_turno_dealer, mazo_simulado):
         dealer_puntaje = self.calcular_puntaje(dealer_mano)
         
-        # 📌 Condiciones de fin del juego
+        
         if dealer_puntaje > 21:
             return -1  # Dealer pierde automáticamente
         if dealer_puntaje >= 17:  # Dealer se planta a 17 o más
